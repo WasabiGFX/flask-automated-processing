@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="padding: 20px 5%;">
+{% if product %}
+<h2>{{ product[1] }}</h2>
+
+<img src="{{ product[6] if product|length > 6 else 'https://via.placeholder.com/150' }}" style="width: 200px; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 15px;">
+
+<p><strong>Producer:</strong> {{ product[4] if product|length > 4 else "Unknown" }}</p>
+<p><strong>Price:</strong> £{{ "%.2f"|format(product[2]) }}</p>
+<p><strong>Stock Available:</strong> {{ product[3] }}</p>
+<p><strong>Allergens:</strong> {{ product[5] if product|length > 5 else "None" }}</p>
+
+<form method="POST" action="/order" style="margin-top: 20px;">
+    <input type="hidden" name="product_id" value="{{ product[0] }}">
+
+    <label style="font-weight: bold;">Quantity:</label>
+    <input type="number" name="quantity" min="1" value="1" required style="width: 60px; padding: 5px; margin-right: 15px;">
+
+    <button type="submit" style="background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Place Order</button>
+</form>
+
+{% else %}
+<p>Product not found.</p>
+{% endif %}
+</div>
+{% endblock %}

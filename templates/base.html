@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenfield Local Hub</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js" defer></script>
+</head>
+
+<body>
+
+    <nav>
+        <div class="nav-brand">
+            <a href="/">Greenfield Local Hub</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a>
+            <a href="/products" class="{% if request.path == '/products' %}active{% endif %}">Products</a>
+            <a href="/producers" class="{% if request.path == '/producers' %}active{% endif %}">Producers</a>
+            
+            {% if session.get("role") == "admin" %}
+            <a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}">Dashboard</a>
+            {% endif %}
+
+            {% if session.get("user") %}
+            <a href="/account" class="{% if request.path == '/account' %}active{% endif %}">My Account</a>
+            <a href="/logout">Logout</a>
+            {% else %}
+            <a href="/login" class="{% if request.path == '/login' %}active{% endif %}">Login</a>
+            <a href="/register" class="{% if request.path == '/register' %}active{% endif %}">Register</a>
+            {% endif %}
+
+            <a href="/cart" class="cart-btn {% if request.path == '/cart' %}active{% endif %}">Cart</a>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="/contact">Contact us</a>
+            <a href="/privacy">Privacy policy</a>
+            <a href="/accessibility">Accessibility</a>
+        </div>
+    </footer>
+
+</body>
+
+</html>

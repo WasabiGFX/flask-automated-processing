@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero">
+    <h1>Fresh, Local, Transparent</h1>
+    <a href="/products" class="shop-now-btn">Shop Now</a>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-container">
+    <h2>Browse by Category</h2>
+    
+    <div class="category-grid">
+        <a href="/products?category=vegetables" class="category-card">Vegetables</a>
+        <a href="/products?category=dairy-eggs" class="category-card">Dairy and Eggs</a>
+        <a href="/products?category=meat-poultry" class="category-card">Meat and Poultry</a>
+        <a href="/products?category=baked-goods" class="category-card">Baked Goods</a>
+    </div>
+</section>
+
+{% endblock %}

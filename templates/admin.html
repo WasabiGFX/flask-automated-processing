@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+<!-- rename to dashboard.html --> 
+{% block content %}
+<div class="prod-dashboard-content">
+
+    <header class="prod-dash-header" style="border-bottom: 2px solid #2e7d32;">
+        <h1 style="color: #2e7d32;">Producer Dashboard</h1>
+        <div class="prod-header-actions">
+            <button class="prod-btn prod-btn-primary" onclick="document.getElementById('add-product-form').style.display='block'" style="background-color: #2e7d32; border-color: #1b5e20;">Add New Product</button>
+        </div>
+    </header>
+
+    <div id="add-product-form" style="display:none; background:#f1f8e9; padding:20px; border:1px solid #dcedc8; margin-bottom:20px; border-radius: 8px;">
+        <h3 style="color: #2e7d32;">Add New Product</h3>
+        <form action="/dashboard/add" method="POST" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+            <input type="text" name="name" placeholder="Product Name" required style="padding:8px; border: 1px solid #ccc; border-radius: 4px;">
+            <input type="number" step="0.01" name="price" placeholder="Price (£)" required style="padding:8px; border: 1px solid #ccc; border-radius: 4px;">
+            <input type="number" name="stock" placeholder="Stock Qty" required style="padding:8px; border: 1px solid #ccc; border-radius: 4px;">
+            <input type="text" name="producer" placeholder="Producer Name" required style="padding:8px; border: 1px solid #ccc; border-radius: 4px;">
+            <input type="text" name="allergens" placeholder="Allergens (e.g. None)" value="None" required style="padding:8px; border: 1px solid #ccc; border-radius: 4px;">
+            <button type="submit" class="prod-btn prod-btn-primary" style="background-color: #2e7d32; border-color: #1b5e20;">Save Product</button>
+            <button type="button" class="prod-btn" onclick="document.getElementById('add-product-form').style.display='none'">Cancel</button>
+        </form>
+    </div>
+
+    <div class="prod-section-title" style="color: #2e7d32; border-bottom: 2px solid #dcedc8;">Product Management</div>
+    <div class="prod-table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Stock Level</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product[1] }}</td>
+                    <td>£{{ "%.2f"|format(product[2]) }}</td>
+                    <td>
+                        <form action="/dashboard/update/{{ product[0] }}" method="POST" style="display:inline-flex; gap:5px;">
+                            <input type="number" name="stock" value="{{ product[3] }}" style="width:60px; padding:4px; border: 1px solid #ccc; border-radius: 4px;">
+                            <button type="submit" class="prod-btn-small" style="background:#e8f5e9; border-color:#2e7d32; color:#2e7d32; border-radius: 4px;">Update</button>
+                        </form>
+                    </td>
+                    <td>
+                        {% if product[3] > 10 %}
+                        <span class="prod-status-label" style="background:#e8f5e9; color:#2e7d32; border-color:#2e7d32;">In Stock</span>
+                        {% elif product[3] > 0 %}
+                        <span class="prod-status-label" style="background:#fff3e0; color:#e65100; border-color:#ef6c00;">Low Stock</span>
+                        {% else %}
+                        <span class="prod-status-label" style="background:#ffebee; color:#c62828; border-color:#c62828;">Out of Stock</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="/dashboard/delete/{{ product[0] }}" method="POST" onsubmit="return confirm('Delete this product?');" style="display:inline;">
+                            <button type="submit" class="prod-btn-small" style="background:#ffebee; border-color:#c62828; color:#c62828; border-radius: 4px;">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="prod-orders-wrapper">
+        <h2 class="prod-section-title" style="margin-top: 40px; border-top: 2px solid #2e7d32; padding-top: 20px; color: #2e7d32;">Current Orders</h2>
+        <div class="prod-orders-container">
+            {% for order in orders %}
+            <div class="prod-card">
+                <div class="prod-card-header">Order #{{ order[0] }}</div>
+                
+                <div class="prod-summary-row">
+                    <span>Product</span>
+                    <span>{{ order[1] }} (x{{ order[2] }})</span>
+                </div>
+                <div class="prod-summary-row">
+                    <span>Delivery Type</span>
+                    <span>Local Delivery</span>
+                </div>
+                <div class="prod-summary-row prod-total">
+                    <span>Total Price</span>
+                    <span>£{{ "%.2f"|format(order[3]) }}</span>
+                </div>
+
+                <div class="prod-tracking-list">
+                    <div class="prod-track-step">
+                        <div class="prod-track-node prod-completed" style="background-color: #2e7d32; border-color: #1b5e20;"></div>
+                        <div class="prod-track-label">Received</div>
+                    </div>
+                    <div class="prod-track-step">
+                        <div class="prod-track-node prod-completed" style="background-color: #2e7d32; border-color: #1b5e20;"></div>
+                        <div class="prod-track-label">Preparing</div>
+                    </div>
+                    <div class="prod-track-step">
+                        <div class="prod-track-node prod-completed" style="background-color: #2e7d32; border-color: #1b5e20;"></div>
+                        <div class="prod-track-label prod-active" style="color: #2e7d32;">Out for Delivery</div>
+                    </div>
+                    <div class="prod-track-step">
+                        <div class="prod-track-node" style="border-color: #2e7d32;"></div>
+                        <div class="prod-track-label">Delivered</div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p style="padding: 20px;">No current orders assigned to you.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

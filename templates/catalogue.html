@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Products</h2>
+
+<div class="products-list">
+    {% if products %}
+        {% for product in products %}
+        <form method="POST" action="/order" class="product-grid-item">
+            <input type="hidden" name="product_id" value="{{ product[0] }}">
+            
+            <div class="grid-img">
+                <img src="{{ product[6] if product|length > 6 else 'https://via.placeholder.com/150' }}" alt="Product Image">
+            </div>
+            
+            <div class="grid-details">
+                <h3>{{ product[1] }}</h3>
+                <p><strong>Producer:</strong> {{ product[4] if product|length > 4 else "Unknown" }}</p>
+                <p><strong>Price:</strong> £{{ "%.2f"|format(product[2]) }}</p>
+                <p><strong>Stock:</strong> {{ product[3] }}</p>
+                <p><strong>Allergens:</strong> {{ product[5] if product|length > 5 else "None" }}</p>
+            </div>
+            
+            <div class="grid-qty">
+                <label>Quantity:</label>
+                <input type="number" name="quantity" min="1" value="1" required>
+            </div>
+            
+            <div class="grid-add">
+                <button type="submit">Add to Basket</button>
+            </div>
+        </form>
+        {% endfor %}
+    {% else %}
+        <p>No products found.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
