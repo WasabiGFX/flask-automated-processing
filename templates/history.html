@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+<!-- rename to account.html -->
+{% block content %}
+<div class="account-page-wrapper">
+    <!-- User Header -->
+    <div class="account-hero">
+        <div class="account-info">
+            <h2 class="user-email">{{ user[0] }}</h2>
+            <p class="role-text">Account Type: {{ user[1]|capitalize }}</p>
+        </div>
+        <div class="account-actions">
+            {% if user[1] == 'admin' %}
+            <a href="/dashboard" class="action-btn outline">Admin Dashboard</a>
+            {% endif %}
+            <a href="/logout" class="action-btn text-only">Sign Out</a>
+        </div>
+    </div>
+
+    <!-- Main Account Content -->
+    <div class="account-body">
+        <div class="order-list-section">
+            <h3 class="section-heading">Recent Orders</h3>
+
+            {% if orders %}
+            <ul class="clean-order-list">
+                {% for order in orders %}
+                <li class="order-item">
+                    <div class="order-item-main">
+                        <span class="order-id">#{{ order[0] }}</span>
+                        <span class="order-name">{{ order[1] }}</span>
+                        <span class="order-qty">x{{ order[2] }}</span>
+                    </div>
+                    <div class="order-item-price">
+                        £{{ "%.2f"|format(order[3]) }}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="empty-state">
+                <p>No orders placed yet.</p>
+                <a href="/products" class="shop-now-btn">Start your first order</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
