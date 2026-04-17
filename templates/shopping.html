@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+<!-- rename to cart.html -->
+{% block content %}
+<div class="auth-container cart-container">
+    <h2>Your Basket</h2>
+
+    {% if success_msg %}
+    <div class="error-msg cart-success-msg">
+        {{ success_msg }}
+    </div>
+    <div class="cart-actions">
+        <a href="/products" class="shop-now-btn inline-block">Continue Shopping</a>
+    </div>
+    {% endif %}
+
+    {% if cart %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pid, item in cart.items() %}
+            <tr>
+                <td><strong>{{ item.name }}</strong></td>
+                <td>£{{ "%.2f"|format(item.price) }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>£{{ "%.2f"|format(item.price * item.quantity) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="cart-total-label"><strong>Total Amount:</strong></td>
+                <td class="cart-total-value">£{{ "%.2f"|format(total) }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <form method="POST" action="/checkout" class="cart-actions">
+        <button type="submit" class="shop-now-btn checkout-btn">Checkout Securely</button>
+    </form>
+    {% else %}
+    {% if not success_msg %}
+    <p class="empty-cart-msg">Your basket is currently empty.</p>
+    <div class="cart-actions">
+        <a href="/products" class="shop-now-btn inline-block">Browse Products</a>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

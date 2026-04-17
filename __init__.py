@@ -3,6 +3,7 @@ import sqlite3
 # ADMIN LOGIN: email: admin@greenfield.com pass: 1111
 
 #rename to app.py
+
 app = Flask(__name__)
 app.secret_key = "anothersecretkey"
 
