@@ -32,7 +32,17 @@
             <a href="/register" class="{% if request.path == '/register' %}active{% endif %}">Register</a>
             {% endif %}
 
-            <a href="/cart" class="cart-btn {% if request.path == '/cart' %}active{% endif %}">Cart</a>
+            <a href="/cart" class="cart-btn cart-btn-wrapper {% if request.path == '/cart' %}active{% endif %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                Cart
+                {% if session.cart %}
+                <span class="cart-count">{{ session.cart|length }}</span>
+                {% endif %}
+            </a>
         </div>
     </nav>
 

@@ -43,9 +43,15 @@ def setup_database():
         id INTEGER PRIMARY KEY,
         product_id INTEGER,
         quantity INTEGER,
-        total REAL
+        total REAL,
+        user_id INTEGER
     )
     """)
+    
+    try:
+        db.execute("ALTER TABLE orders ADD COLUMN user_id INTEGER")
+    except sqlite3.OperationalError:
+        pass
 
     db.commit()
 
@@ -238,42 +244,114 @@ def search_items():
     return render_template("catalogue.html", products=results)
 
 
-# Order
+# Cart Actions
 @app.route("/order", methods=["POST"])
-def create_order():
+def add_to_cart():
     product_id = request.form["product_id"]
     quantity = int(request.form["quantity"])
 
-    db = connect_db()
+    if 'cart' not in session:
+        session['cart'] = {}
 
-    product = db.execute(
-        "SELECT stock, price FROM products WHERE id=?",
-        (product_id,)
-    ).fetchone()
+    db = connect_db()
+    product = db.execute("SELECT stock, name, price FROM products WHERE id=?", (product_id,)).fetchone()
 
     if product:
-        stock, price = product
+        stock, name, price = product
+        
+        # Current quantity in cart
+        current_qty = session['cart'].get(str(product_id), {}).get('quantity', 0)
+        new_qty = current_qty + quantity
 
-        if quantity > 0 and stock >= quantity:
-            total = price * quantity
-
-            db.execute(
-                "INSERT INTO orders (product_id, quantity, total) VALUES (?, ?, ?)",
-                (product_id, quantity, total)
-            )
-
-            db.execute(
-                "UPDATE products SET stock = stock - ? WHERE id=?",
-                (quantity, product_id)
-            )
-
-            db.commit()
-
-            return "Order complete"
+        if new_qty > 0 and stock >= new_qty:
+            cart = session['cart']
+            cart[str(product_id)] = {
+                'name': name,
+                'price': price,
+                'quantity': new_qty
+            }
+            session['cart'] = cart
+            session.modified = True
+            return redirect("/cart")
         else:
             return "Error: invalid quantity or insufficient stock"
 
     return "Error: product not found"
+
+
+@app.route("/cart")
+def view_cart():
+    cart = session.get('cart', {})
+    total = sum(item['price'] * item['quantity'] for item in cart.values())
+    return render_template("cart.html", cart=cart, total=total)
+
+
+@app.route("/checkout", methods=["POST"])
+def checkout():
+    cart = session.get('cart', {})
+    if not cart:
+        return redirect("/cart")
+
+    db = connect_db()
+    
+    # Simple validation first
+    for pid, item in cart.items():
+        qty = item['quantity']
+        product = db.execute("SELECT stock FROM products WHERE id=?", (pid,)).fetchone()
+        if not product or product[0] < qty:
+            return f"Error: insufficient stock for {item['name']}"
+
+    # Process order
+    user_id = session.get('user')
+    for pid, item in cart.items():
+        qty = item['quantity']
+        price = item['price']
+        total = price * qty
+
+        db.execute(
+            "INSERT INTO orders (product_id, quantity, total, user_id) VALUES (?, ?, ?, ?)",
+            (pid, qty, total, user_id)
+        )
+        db.execute(
+            "UPDATE products SET stock = stock - ? WHERE id=?",
+            (qty, pid)
+        )
+
+    db.commit()
+    session.pop('cart', None)
+    return render_template("cart.html", cart={}, total=0, success_msg="Order complete! Thank you for shopping local.")
+
+
+# My Account
+@app.route("/account")
+def my_account():
+    if not session.get("user"):
+        return redirect("/login")
+        
+    db = connect_db()
+    user = db.execute("SELECT email, role FROM users WHERE id=?", (session["user"],)).fetchone()
+    
+    orders = db.execute("""
+        SELECT orders.id, products.name, orders.quantity, orders.total 
+        FROM orders 
+        JOIN products ON orders.product_id = products.id 
+        WHERE orders.user_id=?
+        ORDER BY orders.id DESC
+    """, (session["user"],)).fetchall()
+    
+    return render_template("account.html", user=user, orders=orders)
+
+
+# Producers
+@app.route("/producers")
+def show_producers():
+    db = connect_db()
+    producers = db.execute("""
+        SELECT producer, COUNT(id) as product_count, MIN(image_url) 
+        FROM products 
+        GROUP BY producer
+    """).fetchall()
+    return render_template("producers.html", producers=producers)
 
 
 # Run app
