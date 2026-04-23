@@ -92,3 +92,20 @@
 * **Algorithmic Thinking (The Session Cart):** I'm incredibly proud of how I handled the shopping cart. At first, I treated the cart simply as an array/list of items. The problem was, if someone added 50 apples, I had an array with 50 lines. To figure out the price, my code had to iterate through `O(N)` elements. When I finally figured out how to use a Python Dictionary structure (`{product_id: cumulative_qty}`), it was a game changer. Doing `cart[id] += 1` meant the memory access was immediate (`O(1)`), which is vastly more efficient for a web server.
 * **Database Normalization (3NF):** Ensuring everything hit Third Normal Form (3NF) saved me so much headache later on. Introducing the `order_items` table specifically solved the nasty Many-to-Many relationship between `orders` and `products`. If I hadn’t done that, I would have been trying to shove massive arrays of string text into a single table column, which breaks massive rules of relational databases.
 * **Defensive Programming:** I spent so much time just trying to break my own website. Every single `input()` box from a user was treated as malicious. By forcing quantities through `int()` casting, I blocked string overflow attacks. More importantly, by exclusively using `(?)` placeholder parameters in `sqlite3`, there isn't a single place in Greenfield Local Hub where a user can perform an SQL Injection attack.
+
+### **Session 10: Final Quality Assurance & Documentation**
+* **The Goal:** Conduct a final end-to-end audit and complete the technical documentation.
+* **What I Did:** I performed a "smoke test" of the entire user journey: registration -> searching for items -> adding to basket -> checkout -> verifying the order in the 'My Account' history. I also audited the `INFO.md` and `PROJECT-VERSION.md` files to ensure they accurately reflect every technical hurdle I overcame. I finalized the CSS glass-morphism effects on the 'Producers' page to ensure design consistency across the entire hub.
+* **Review:** The project is now robust, well-documented, and ready for submission. Every requirement from the initial brief has been met and exceeded with custom CSS and secure backend logic.
+
+---
+
+## 5. Final Conclusion & Future Scope
+Greenfield Local Hub has evolved from a basic Flask skeleton into a feature-complete marketplace. By prioritizing **Relational Integrity** and **User Experience**, I have created a platform that is both technically sound and visually engaging. 
+
+**If I had more time, I would:**
+1.  **Implement an Image Upload System:** Allow producers to upload their own `.jpg` files directly to the server instead of using external URLs.
+2.  **Add Email Notifications:** Use an SMTP library to send order confirmations to users and "New Order" alerts to producers.
+3.  **Integrate a Payment API:** Replace the current simulated checkout with a real Stripe or PayPal integration for actual transactions.
+
+Overall, this project has significantly improved my understanding of full-stack development, specifically the importance of handling state securely and designing for responsiveness.
